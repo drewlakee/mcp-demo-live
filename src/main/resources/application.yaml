@@ -1,0 +1,17 @@
+logging:
+  level:
+    # DEBUG позволяет увидеть весь лог вызовов
+    root: INFO
+server:
+  port: 8081
+spring:
+  ai:
+    openai:
+      api-key: ${OPEN_AI_API_KEY}
+      base-url: ${OPEN_AI_BASE_URL:https://llm.api.cloud.yandex.net}
+    mcp:
+      client:
+        sse:
+          connections:
+            mcp-server-example:
+              url: http://localhost:8081
