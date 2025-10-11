@@ -19,6 +19,16 @@ YANDEX_CLOUD_API_KEY // см. документацию yandex cloud Api-Key дл
 - пример реализации mcp-сервера, mcp-клиента
 - spring ai + webmvc
 
-## embabel
+```kotlin
+// Используемые перменные окружения
+OPEN_AI_API_KEY // см. документацию yandex cloud Api-Key для service-account 
+```
 
-- пример реализации агента с тем же сценарием
+## embabel-agent поверх spring-ai
+
+- пример реализации агентов с алгоритмом Goal-Oriented Action Planning
+
+```kotlin
+// Используемые перменные окружения
+OPEN_AI_API_KEY // см. документацию yandex cloud Api-Key для service-account 
+```
