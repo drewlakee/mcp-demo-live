@@ -5,6 +5,9 @@ logging:
 server:
   port: 8081
 spring:
+  output:
+    ansi:
+      enabled: ALWAYS
   ai:
     openai:
       api-key: ${OPEN_AI_API_KEY}

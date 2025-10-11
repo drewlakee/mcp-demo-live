@@ -1,0 +1,9 @@
+server:
+  port: 8081
+spring:
+  output:
+    ansi:
+      enabled: ALWAYS
+embabel:
+  models:
+    default-llm: gpt://b1gioucfterb2rnsqb1q/gpt-oss-120b
