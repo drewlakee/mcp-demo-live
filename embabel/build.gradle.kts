@@ -30,6 +30,8 @@ repositories {
 dependencies {
     implementation("org.springframework.ai:spring-ai-starter-mcp-server-webmvc:1.1.0-M3")
     implementation("com.embabel.agent:embabel-agent-starter:0.1.4-SNAPSHOT")
+
+    implementation(project(":demo-commons"))
 }
 
 tasks.test {

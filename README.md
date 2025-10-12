@@ -22,6 +22,8 @@ YANDEX_CLOUD_API_KEY // см. документацию yandex cloud Api-Key дл
 ```kotlin
 // Используемые перменные окружения
 OPEN_AI_API_KEY // см. документацию yandex cloud Api-Key для service-account 
+MONGO_CONNECTION_STRING // пример mongodb://localhost:27017/test
+MONGO_DATABASE // пример test
 ```
 
 ## embabel-agent поверх spring-ai
@@ -31,4 +33,6 @@ OPEN_AI_API_KEY // см. документацию yandex cloud Api-Key для se
 ```kotlin
 // Используемые перменные окружения
 OPEN_AI_API_KEY // см. документацию yandex cloud Api-Key для service-account 
+MONGO_CONNECTION_STRING // пример mongodb://localhost:27017/test
+MONGO_DATABASE // пример test
 ```
