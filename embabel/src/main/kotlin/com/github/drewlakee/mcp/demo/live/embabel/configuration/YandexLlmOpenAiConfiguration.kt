@@ -17,11 +17,10 @@ import org.springframework.context.annotation.Configuration
 open class YandexLlmOpenAiConfiguration(
     @Value("\${OPENAI_API_KEY}")
     apiKey: String,
-    observationRegistry: ObservationRegistry,
 ) : OpenAiCompatibleModelFactory(
     baseUrl = "https://llm.api.cloud.yandex.net",
     apiKey = apiKey,
-    observationRegistry = observationRegistry,
+    observationRegistry = ObservationRegistry.NOOP,
     completionsPath = null,
     embeddingsPath = null,
 ) {
