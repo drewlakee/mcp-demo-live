@@ -149,6 +149,7 @@ class SubscriptionsAgent {
     }
 
     @AchievesGoal(description = "Объясни, что недостаточное кол-во информации было предоставлено для поиска причины недоступности")
+    @Action
     fun complainAboutMissingDetailsAboutUser(notProvided: UidNotProvided): SubscriptionUnavailabilityExplain =
         SubscriptionUnavailabilityExplain(explanation = "Без пользователя тяжело определить причину недоступности подписки. Укажите пользователя")
 
