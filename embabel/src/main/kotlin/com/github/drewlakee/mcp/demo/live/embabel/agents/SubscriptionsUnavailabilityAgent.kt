@@ -8,10 +8,13 @@ import com.embabel.agent.api.common.OperationContext
 import com.embabel.agent.api.common.SomeOf
 import com.embabel.agent.api.common.createObject
 import com.embabel.agent.domain.io.UserInput
+import com.embabel.chat.AssistantMessage
+import com.embabel.chat.UserMessage
 import com.embabel.common.ai.model.LlmOptions
 import com.fasterxml.jackson.annotation.JsonPropertyDescription
 import com.github.drewlakee.mcp.demo.live.datasource.mongo.MongoSubscriptionsCatalogueDao
 import com.github.drewlakee.mcp.demo.live.datasource.mongo.MongoUserSubscriptionsDao
+import com.github.drewlakee.mcp.demo.live.embabel.configuration.ApplicationLlmProperties
 
 data class SomeOfUserMessagesExtract(
     val provided: UidProvided? = null,
@@ -95,7 +98,7 @@ data class SubscriptionUnavailabilityExplain(
     // для различных мобов/противников в окружении с открытым миром.
     planner = Planner.GOAP,
 )
-class SubscriptionsAgent {
+class SubscriptionsAgent(private val properties: ApplicationLlmProperties) {
 
     private val activeSubscriptionsDao: MongoUserSubscriptionsDao = MongoUserSubscriptionsDao()
     private val catalogueSubscriptionsDao: MongoSubscriptionsCatalogueDao = MongoSubscriptionsCatalogueDao()
@@ -104,7 +107,7 @@ class SubscriptionsAgent {
     fun userMessagesExtract(userInput: UserInput, context: OperationContext): SomeOfUserMessagesExtract {
         val extract = context
             .ai()
-            .withDefaultLlm()
+            .withLlm(properties.reactiveModel.id)
             .createObject<UserMessagesExtract>(
                 """
                     На основе сообщения вычлени информацию о пользователе, для которого нужно выяснить недоступность подписки, а также
@@ -153,7 +156,7 @@ class SubscriptionsAgent {
     fun complainAboutMissingDetailsAboutUser(notProvided: UidNotProvided): SubscriptionUnavailabilityExplain =
         SubscriptionUnavailabilityExplain(explanation = "Без пользователя тяжело определить причину недоступности подписки. Укажите пользователя")
 
-    private val commonSystemPromt = """
+    private val systemPromt = """
         Ты - дежурный поддержки разработки очень крутой команды подписочной тарифной сетки.
         Твоя задача по известным источникам данных объяснить причину недоступности той или иной подписки пользователю.
         Отвечай максимально просто и понятно, так как в поддержку обращаются люди, которые ничего не знает про доменную область очень крутой команды подписочной тарифной сетки.
@@ -165,6 +168,12 @@ class SubscriptionsAgent {
         Фича - это доступ к контенту, который дает сама подписка.    
         
         Не обращайся к пользователю напрямую, формулируй ответ обобщенно, как будто ты общаешься сам с собой.
+        
+        Постарайся помочь пользователю, объяснив причину недоступности подписки именно по апгрейду. 
+        
+        Если у тебя нет достаточной информации, уточни идентификаторы конкретных подписок в каталоге.
+        
+        Если по запросу пользователя что-то не сходится с нашей логикой, объясни ему в чем он, возможно, ошибается.
         
         В случае если вопрос скорее всего не связан с предметной областью подписок, скажи, что ты не можешь помочь, либо направь по этому вопросу к дежурному разработчику.
     """.trimIndent()
@@ -181,21 +190,19 @@ class SubscriptionsAgent {
             .ai()
             .withLlm(
                 LlmOptions
-                    .withDefaultLlm()
-                    .withTemperature(0.9)
+                    .withModel(properties.thinkingModel.id)
+                    .withTemperature(properties.thinkingModel.temperature)
             )
-            .createObject(
-                """
-                    $commonSystemPromt
-                                        
-                    Пользователь: $uid   
-                    Активные подписки этого пользователя: $activeSubscriptions  
-                    Постарайся помочь пользователю, объяснив причину недоступности подписки именно по апгрейду. 
-                    Если у тебя нет достаточной информации, уточни идентификаторы конкретных подписок в каталоге. 
-                    
-                    Сообщение пользователя: ${userInput.content}
-                """.trimIndent()
+            .withSystemPrompt(systemPromt)
+            .withMessage(
+                AssistantMessage(
+                    content = """
+                        Пользователь: $uid   
+                        Активные подписки этого пользователя: $activeSubscriptions  
+                    """.trimIndent()
+                )
             )
+            .createObject(userInput.content)
 
     @AchievesGoal(description = "Объясни на основе запроса от пользователя причину недоступности подписки")
     @Action(value = 1.0, cost = 0.5)
@@ -210,19 +217,18 @@ class SubscriptionsAgent {
             .ai()
             .withLlm(
                 LlmOptions
-                    .withDefaultLlm()
-                    .withTemperature(0.9)
+                    .withModel(properties.thinkingModel.id)
+                    .withTemperature(properties.thinkingModel.temperature)
             )
-            .createObject(
-                """
-                    $commonSystemPromt
-                                        
-                    Пользователь: $uid     
-                    Активные подписки этого пользователя: $activeSubscriptions
-                    Информация о подписках, которые упоминались пользователем: $catalogueMentionedSubscriptions
-                    Постарайся помочь пользователю, объяснив причину недоступности подписки именно по апгрейду.
-                    
-                    Сообщение пользователя: ${userInput.content}
-                """.trimIndent()
+            .withSystemPrompt(systemPromt)
+            .withMessage(
+                AssistantMessage(
+                    content = """
+                        Пользователь: $uid     
+                        Активные подписки этого пользователя: $activeSubscriptions
+                        Информация о подписках, которые упоминались пользователем: $catalogueMentionedSubscriptions
+                    """.trimIndent()
+                )
             )
+            .createObject(userInput.content)
 }

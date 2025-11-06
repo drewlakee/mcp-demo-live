@@ -7,3 +7,10 @@ spring:
 embabel:
   models:
     default-llm: gpt://b1gioucfterb2rnsqb1q/gpt-oss-120b
+application:
+  reactive-model:
+    id: gpt://b1gioucfterb2rnsqb1q/gpt-oss-20b
+    temperature: 0.0
+  thinking-model:
+    id: gpt://b1gioucfterb2rnsqb1q/gpt-oss-120b
+    temperature: 0.6
