@@ -39,6 +39,16 @@ open class YandexLlmOpenAiConfiguration(
 ) {
 
     @Bean
+    open fun defaultModel(properties: ApplicationLlmProperties): Llm {
+        return openAiCompatibleLlm(
+            model = properties.reactiveModel.id,
+            provider = "Yandex Cloud",
+            knowledgeCutoffDate = null,
+            pricingModel = PricingModel.ALL_YOU_CAN_EAT,
+        )
+    }
+
+    @Bean
     open fun reactiveModel(properties: ApplicationLlmProperties): Llm {
         return openAiCompatibleLlm(
             model = properties.reactiveModel.id,
